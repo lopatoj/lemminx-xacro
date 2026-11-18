@@ -1,0 +1,3 @@
+target/
+clients/vscode/server/*.jar
+*.vsix

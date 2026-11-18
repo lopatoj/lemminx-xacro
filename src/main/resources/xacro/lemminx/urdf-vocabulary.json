@@ -1,0 +1,151 @@
+{
+  "_comment": "Element vocabulary for URDF + common extensions (gazebo, transmission, ros2_control). Keys are 'tag' or 'parent/tag' for context-specific definitions. Used for completion and hover; xacro files are not schema-validated against this.",
+  "elements": {
+    "robot": {
+      "doc": "Root element of a URDF robot description.",
+      "attrs": { "name": { "doc": "Name of the robot.", "required": true }, "version": { "doc": "URDF format version (1.0 or 1.1).", "values": ["1.0", "1.1"] } },
+      "children": ["link", "joint", "material", "transmission", "gazebo", "ros2_control", "sensor"]
+    },
+    "link": {
+      "doc": "A rigid body with inertial, visual and collision properties.",
+      "attrs": { "name": { "doc": "Unique link name.", "required": true } },
+      "children": ["inertial", "visual", "collision"]
+    },
+    "inertial": { "doc": "Mass, center of mass and inertia of the link.", "children": ["origin", "mass", "inertia"] },
+    "mass": { "doc": "Link mass.", "attrs": { "value": { "doc": "Mass in kilograms.", "required": true } } },
+    "inertia": {
+      "doc": "3x3 rotational inertia matrix about the center of mass, in the inertial frame (kg·m²). Only the 6 upper-triangle values are given.",
+      "attrs": { "ixx": { "required": true }, "ixy": { "required": true }, "ixz": { "required": true }, "iyy": { "required": true }, "iyz": { "required": true }, "izz": { "required": true } }
+    },
+    "visual": { "doc": "Visual geometry of the link (may appear multiple times).", "attrs": { "name": {} }, "children": ["origin", "geometry", "material"] },
+    "collision": { "doc": "Collision geometry of the link (may appear multiple times).", "attrs": { "name": {} }, "children": ["origin", "geometry"] },
+    "origin": {
+      "doc": "Pose of the element relative to its parent frame.",
+      "attrs": { "xyz": { "doc": "Translation 'x y z' in meters (default 0 0 0)." }, "rpy": { "doc": "Fixed-axis roll pitch yaw in radians (default 0 0 0)." } }
+    },
+    "geometry": { "doc": "Shape of a visual or collision element. Exactly one child.", "children": ["box", "cylinder", "sphere", "mesh", "capsule"] },
+    "box": { "doc": "Box centered at the origin.", "attrs": { "size": { "doc": "Side lengths 'x y z' in meters.", "required": true } } },
+    "cylinder": { "doc": "Cylinder centered at the origin, along Z.", "attrs": { "radius": { "required": true }, "length": { "required": true } } },
+    "sphere": { "doc": "Sphere centered at the origin.", "attrs": { "radius": { "required": true } } },
+    "capsule": { "doc": "Capsule along Z (URDF 1.1 / urdfdom ≥ 4).", "attrs": { "radius": { "required": true }, "length": { "required": true } } },
+    "mesh": {
+      "doc": "Mesh file (STL, DAE, OBJ, …). Use package://pkg/path or file:// URIs.",
+      "attrs": { "filename": { "doc": "package://<pkg>/<path> or file:///abs/path", "required": true }, "scale": { "doc": "Scale 'x y z' (default 1 1 1)." } }
+    },
+    "material": {
+      "doc": "Material (color/texture). Top-level materials can be referenced by name from visuals.",
+      "attrs": { "name": { "doc": "Material name.", "required": true } },
+      "children": ["color", "texture"]
+    },
+    "color": { "doc": "RGBA color, components in [0, 1].", "attrs": { "rgba": { "required": true } } },
+    "texture": { "doc": "Texture image.", "attrs": { "filename": { "required": true } } },
+    "joint": {
+      "doc": "Connects two links with a kinematic constraint.",
+      "attrs": {
+        "name": { "doc": "Unique joint name.", "required": true },
+        "type": { "doc": "Joint type.", "required": true, "values": ["revolute", "continuous", "prismatic", "fixed", "floating", "planar"] }
+      },
+      "children": ["origin", "parent", "child", "axis", "calibration", "dynamics", "limit", "mimic", "safety_controller"]
+    },
+    "parent": { "doc": "Parent link of the joint.", "attrs": { "link": { "required": true } } },
+    "child": { "doc": "Child link of the joint.", "attrs": { "link": { "required": true } } },
+    "axis": { "doc": "Joint axis in the joint frame (normalized). Default 1 0 0.", "attrs": { "xyz": { "required": true } } },
+    "calibration": { "doc": "Reference positions used to calibrate the absolute position of the joint.", "attrs": { "rising": {}, "falling": {} } },
+    "dynamics": { "doc": "Physical properties of the joint (used in simulation).", "attrs": { "damping": { "doc": "N·s/m or N·m·s/rad" }, "friction": { "doc": "N or N·m" } } },
+    "limit": {
+      "doc": "Joint limits (required for revolute and prismatic joints).",
+      "attrs": { "lower": { "doc": "Lower limit (rad or m)." }, "upper": { "doc": "Upper limit (rad or m)." }, "effort": { "doc": "Max effort (N or N·m).", "required": true }, "velocity": { "doc": "Max velocity (rad/s or m/s).", "required": true } }
+    },
+    "mimic": { "doc": "This joint mimics another: value = multiplier * other + offset.", "attrs": { "joint": { "required": true }, "multiplier": {}, "offset": {} } },
+    "safety_controller": { "doc": "Safety controller parameters.", "attrs": { "soft_lower_limit": {}, "soft_upper_limit": {}, "k_position": {}, "k_velocity": { "required": true } } },
+
+    "transmission": {
+      "doc": "Relationship between actuators and joints (ros_control / ros2_control transmission interface). New style: <type>, <joint> and <actuator> children.",
+      "attrs": { "name": { "required": true }, "type": { "doc": "Old (PR2) style: transmission type as attribute." } },
+      "children": ["type", "joint", "actuator", "leftActuator", "rightActuator", "flexJoint", "rollJoint", "mechanicalReduction"]
+    },
+    "transmission/type": { "doc": "Transmission type, e.g. transmission_interface/SimpleTransmission.", "text": ["transmission_interface/SimpleTransmission", "transmission_interface/DifferentialTransmission", "transmission_interface/FourBarLinkageTransmission"] },
+    "transmission/joint": { "doc": "Joint driven by the transmission.", "attrs": { "name": { "required": true } }, "children": ["hardwareInterface", "role", "mechanicalReduction", "offset"] },
+    "actuator": { "doc": "Actuator of the transmission.", "attrs": { "name": { "required": true } }, "children": ["hardwareInterface", "role", "mechanicalReduction"] },
+    "hardwareInterface": { "doc": "Hardware interface type.", "text": ["hardware_interface/PositionJointInterface", "hardware_interface/VelocityJointInterface", "hardware_interface/EffortJointInterface", "position", "velocity", "effort"] },
+    "mechanicalReduction": { "doc": "Gear ratio between actuator and joint." },
+    "role": { "doc": "Role of a joint/actuator in multi-DOF transmissions (e.g. joint1, actuator1)." },
+
+    "gazebo": {
+      "doc": "Gazebo-specific extensions. Without 'reference' applies to the whole robot; with reference=\"link\" or reference=\"joint\" to that element. Gazebo Classic and Gazebo Sim (gz) both parse these via sdformat's URDF parser.",
+      "attrs": { "reference": { "doc": "Name of a link or joint (omit for robot-level settings)." } },
+      "children": ["plugin", "sensor", "material", "mu1", "mu2", "kp", "kd", "minDepth", "maxVel", "fdir1", "maxContacts", "selfCollide", "self_collide", "gravity", "turnGravityOff", "dampingFactor", "laserRetro", "static", "provideFeedback", "implicitSpringDamper", "springStiffness", "springReference", "stopCfm", "stopErp", "preserveFixedJoint", "disableFixedJointLumping", "visual", "collision"]
+    },
+    "gazebo/material": { "doc": "Gazebo material: Classic script name (e.g. Gazebo/Red) or, for gz, an SDF <material> with ambient/diffuse/specular children.", "children": ["ambient", "diffuse", "specular", "emissive"] },
+    "mu1": { "doc": "Coulomb friction coefficient along the first friction direction (link)." },
+    "mu2": { "doc": "Coulomb friction coefficient along the second friction direction (link)." },
+    "kp": { "doc": "Contact stiffness (link)." },
+    "kd": { "doc": "Contact damping (link)." },
+    "minDepth": { "doc": "Minimum penetration depth before contact correction (link)." },
+    "maxVel": { "doc": "Maximum contact correction velocity (link)." },
+    "fdir1": { "doc": "First friction direction 'x y z' in the collision frame (link)." },
+    "maxContacts": { "doc": "Maximum number of contacts between two entities (link)." },
+    "selfCollide": { "doc": "Allow the link to collide with other links of the model (true/false).", "text": ["true", "false"] },
+    "self_collide": { "doc": "Robot-level self collision (true/false).", "text": ["true", "false"] },
+    "gravity": { "doc": "Enable gravity for the link (true/false).", "text": ["true", "false"] },
+    "turnGravityOff": { "doc": "Deprecated: disable gravity for the link.", "text": ["true", "false"] },
+    "dampingFactor": { "doc": "Exponential velocity decay of the link." },
+    "laserRetro": { "doc": "Intensity value returned by laser sensors." },
+    "static": { "doc": "Make the model static (robot-level).", "text": ["true", "false"] },
+    "provideFeedback": { "doc": "Publish joint wrench feedback (joint).", "text": ["true", "false"] },
+    "implicitSpringDamper": { "doc": "Use implicit spring damper for the joint (ODE).", "text": ["true", "false"] },
+    "springStiffness": { "doc": "Joint spring stiffness." },
+    "springReference": { "doc": "Joint spring reference position." },
+    "stopCfm": { "doc": "Joint stop constraint force mixing (ODE)." },
+    "stopErp": { "doc": "Joint stop error reduction parameter (ODE)." },
+    "preserveFixedJoint": { "doc": "Keep this fixed joint instead of lumping its links together.", "text": ["true", "false"] },
+    "disableFixedJointLumping": { "doc": "Disable fixed joint lumping for this joint.", "text": ["true", "false"] },
+    "ambient": { "doc": "RGBA ambient color." },
+    "diffuse": { "doc": "RGBA diffuse color." },
+    "specular": { "doc": "RGBA specular color." },
+    "emissive": { "doc": "RGBA emissive color." },
+    "gazebo/plugin": {
+      "doc": "Gazebo plugin. Content is plugin-specific. Gazebo Sim example: filename=\"gz_ros2_control-system\" name=\"gz_ros2_control::GazeboSimROS2ControlPlugin\" with <parameters>.",
+      "attrs": { "name": { "required": true }, "filename": { "required": true, "values": ["gz_ros2_control-system", "libgazebo_ros2_control.so", "gz-sim-joint-state-publisher-system", "gz-sim-diff-drive-system", "gz-sim-sensors-system", "gz-sim-imu-system", "libgazebo_ros_diff_drive.so", "libgazebo_ros_joint_state_publisher.so"] } },
+      "children": ["parameters", "robot_param", "robot_param_node", "ros"]
+    },
+    "parameters": { "doc": "Path to a controller manager YAML file (gz_ros2_control / gazebo_ros2_control)." },
+    "gazebo/sensor": {
+      "doc": "SDF sensor attached to the referenced link.",
+      "attrs": { "name": { "required": true }, "type": { "required": true, "values": ["camera", "depth_camera", "rgbd_camera", "gpu_lidar", "gpu_ray", "ray", "imu", "contact", "force_torque", "magnetometer", "altimeter", "air_pressure", "navsat", "gps", "thermal_camera", "segmentation_camera", "boundingbox_camera"] } },
+      "children": ["always_on", "update_rate", "visualize", "topic", "pose", "camera", "ray", "lidar", "imu", "plugin", "gz_frame_id"]
+    },
+
+    "ros2_control": {
+      "doc": "ros2_control hardware description, parsed by the controller manager from robot_description.",
+      "attrs": { "name": { "required": true }, "type": { "required": true, "values": ["system", "actuator", "sensor"] }, "is_async": { "values": ["true", "false"] }, "rw_rate": { "doc": "Read/write rate in Hz (Jazzy+)." } },
+      "children": ["hardware", "joint", "sensor", "gpio"]
+    },
+    "hardware": { "doc": "Hardware plugin and its parameters.", "children": ["plugin", "param"] },
+    "hardware/plugin": { "doc": "Hardware interface plugin class.", "text": ["mock_components/GenericSystem", "gz_ros2_control/GazeboSimSystem", "gazebo_ros2_control/GazeboSystem", "ign_ros2_control/IgnitionSystem", "fake_components/GenericSystem"] },
+    "ros2_control/joint": {
+      "doc": "Joint managed by this hardware component.",
+      "attrs": { "name": { "required": true }, "mimic": { "doc": "Mark as mimic joint (Jazzy+).", "values": ["true", "false"] } },
+      "children": ["command_interface", "state_interface", "param"]
+    },
+    "ros2_control/sensor": { "doc": "Sensor managed by this hardware component.", "attrs": { "name": { "required": true } }, "children": ["state_interface", "param"] },
+    "gpio": { "doc": "General purpose I/O.", "attrs": { "name": { "required": true } }, "children": ["command_interface", "state_interface", "param"] },
+    "command_interface": {
+      "doc": "Command interface exported by the hardware.",
+      "attrs": { "name": { "required": true, "values": ["position", "velocity", "effort", "acceleration"] }, "data_type": { "values": ["double", "bool"] }, "size": {} },
+      "children": ["param"]
+    },
+    "state_interface": {
+      "doc": "State interface exported by the hardware.",
+      "attrs": { "name": { "required": true, "values": ["position", "velocity", "effort", "acceleration", "orientation.x", "orientation.y", "orientation.z", "orientation.w", "angular_velocity.x", "angular_velocity.y", "angular_velocity.z", "linear_acceleration.x", "linear_acceleration.y", "linear_acceleration.z", "force.x", "force.y", "force.z", "torque.x", "torque.y", "torque.z"] }, "data_type": { "values": ["double", "bool"] }, "size": {} },
+      "children": ["param"]
+    },
+    "param": { "doc": "Named parameter (text content is the value). For interfaces: min, max, initial_value.", "attrs": { "name": { "required": true, "values": ["min", "max", "initial_value"] } } },
+
+    "sensor": {
+      "doc": "URDF sensor (urdfdom). Rarely used; prefer <gazebo reference=...><sensor> for simulation.",
+      "attrs": { "name": { "required": true }, "update_rate": {}, "type": {} },
+      "children": ["parent", "origin", "camera", "ray"]
+    }
+  }
+}

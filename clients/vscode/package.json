@@ -1,0 +1,28 @@
+{
+  "name": "xacro-lemminx",
+  "displayName": "Xacro / URDF (LemMinX)",
+  "description": "Xacro and URDF language support via a LemMinX extension (requires Red Hat XML + Java).",
+  "version": "0.1.0",
+  "publisher": "local",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Programming Languages"],
+  "extensionDependencies": ["redhat.vscode-xml"],
+  "activationEvents": [],
+  "contributes": {
+    "xml.javaExtensions": ["./server/*.jar"],
+    "languages": [
+      { "id": "xml", "extensions": [".xacro", ".urdf"] }
+    ],
+    "configuration": {
+      "title": "Xacro",
+      "properties": {
+        "xml.xacro.packagePaths": { "type": "array", "items": { "type": "string" }, "default": [], "description": "Extra directories scanned for ROS package.xml files." },
+        "xml.xacro.args": { "type": "object", "default": {}, "description": "Default $(arg) mappings, like name:=value on the xacro command line." },
+        "xml.xacro.python.enabled": { "type": "boolean", "default": true, "description": "Run the real xacro on open/save for exact diagnostics and evaluated values." },
+        "xml.xacro.python.executable": { "type": "string", "default": "python3" },
+        "xml.xacro.python.setupScript": { "type": "string", "default": null, "description": "Script to source before running Python, e.g. /opt/ros/jazzy/setup.bash." },
+        "xml.xacro.python.timeoutMs": { "type": "number", "default": 20000 }
+      }
+    }
+  }
+}

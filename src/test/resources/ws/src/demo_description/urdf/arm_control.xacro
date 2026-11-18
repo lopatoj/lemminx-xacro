@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <ros2_control name="${prefix}arm" type="system">
+    <joint name="${prefix}joint">
+      <param name="max">${arm_len}</param>
+    </joint>
+  </ros2_control>
+</robot>
