@@ -44,6 +44,7 @@ public class XacroExtension implements IXMLExtension {
 	private XacroDocumentLinkParticipant links;
 	private IDocumentLifecycleParticipant lifecycle;
 	private IWorkspaceServiceParticipant workspace;
+	private XacroGrammarProvider grammar;
 
 	public XacroWorkspace workspace() {
 		return ws;
@@ -127,6 +128,8 @@ public class XacroExtension implements IXMLExtension {
 			}
 		});
 
+		grammar = new XacroGrammarProvider(ws);
+		registry.getResolverExtensionManager().registerResolver(grammar);
 		registry.registerDiagnosticsParticipant(diagnostics);
 		registry.registerCompletionParticipant(completion);
 		registry.registerHoverParticipant(hover);
@@ -150,6 +153,7 @@ public class XacroExtension implements IXMLExtension {
 
 	@Override
 	public void stop(XMLExtensionsRegistry registry) {
+		registry.getResolverExtensionManager().unregisterResolver(grammar);
 		registry.unregisterDiagnosticsParticipant(diagnostics);
 		registry.unregisterCompletionParticipant(completion);
 		registry.unregisterHoverParticipant(hover);

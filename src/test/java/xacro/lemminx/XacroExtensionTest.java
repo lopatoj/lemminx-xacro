@@ -40,6 +40,8 @@ class XacroExtensionTest {
 	@BeforeEach
 	void setup() {
 		ls = new XMLLanguageService();
+		// the real server installs a document provider; schema resolution needs one
+		ls.setDocumentProvider(uri -> null);
 		ls.initializeIfNeeded();
 		ext = ls.getExtensions().stream().filter(XacroExtension.class::isInstance).map(XacroExtension.class::cast)
 				.findFirst().orElseThrow();
@@ -252,6 +254,20 @@ class XacroExtensionTest {
 		List<Diagnostic> b = runner.diagnosticsFor(ext.workspace().model(open("broken.urdf.xacro")));
 		assertTrue(b.stream().anyMatch(x -> x.getMessage().contains("missing.xacro") && x.getRange().getStart().getLine() == 5),
 				b.toString());
+	}
+
+	@Test
+	void noGrammarWarningSuppressedButNoSchemaErrors() throws Exception {
+		for (String f : List.of("robot.urdf.xacro", "broken.urdf.xacro", "wheel.xacro")) {
+			DOMDocument d = open(f);
+			List<Diagnostic> xml = ls.doDiagnostics(d, new XMLValidationSettings(), Map.of(), () -> {
+			}).stream().filter(x -> !String.valueOf(x.getSource()).startsWith("xacro")).toList();
+			assertEquals(List.of(), xml.stream().map(Diagnostic::getMessage).toList(), f);
+		}
+		// a non-robot root keeps LemMinX's default behaviour
+		DOMDocument other = open(URDF.resolve("tmp_other.xacro"), "<launch/>");
+		assertTrue(ls.doDiagnostics(other, new XMLValidationSettings(), Map.of(), () -> {
+		}).stream().anyMatch(x -> x.getMessage().startsWith("No grammar constraints")));
 	}
 
 	@Test

@@ -4,7 +4,7 @@ End-to-end smoke test: start LemMinX (uber jar with this extension) over stdio, 
 fixture files like an editor would, and print diagnostics / hover / definition results.
 
     mvn -Puber package -DskipTests
-    python3 scripts/lsp_smoke.py target/lemminx-xacro-*-uber.jar
+    python3 scripts/lsp_smoke.py [--all] [target/lemminx-xacro-*-uber.jar]
 """
 import glob
 import json
@@ -19,6 +19,8 @@ ROOT = Path(__file__).resolve().parent.parent
 WS = ROOT / "src/test/resources/ws"
 URDF = WS / "src/demo_description/urdf"
 
+SHOW_ALL = "--all" in sys.argv  # also print LemMinX's own (non-xacro) diagnostics
+sys.argv = [a for a in sys.argv if a != "--all"]
 jar = sys.argv[1] if len(sys.argv) > 1 else sorted(glob.glob(str(ROOT / "target/*-uber.jar")))[-1]
 proc = subprocess.Popen(["java", "-jar", jar], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                         stderr=subprocess.DEVNULL)
@@ -105,7 +107,7 @@ time.sleep(8)  # static diagnostics are immediate; the xacro (python) run happen
 for n, uri in uris.items():
     print("== diagnostics", n)
     for d in diagnostics.get(uri, []):
-        if d.get("source", "").startswith("xacro"):
+        if SHOW_ALL or d.get("source", "").startswith("xacro"):
             print("   L%d %-15s %s" % (d["range"]["start"]["line"] + 1, d.get("source"), d["message"]))
 
 h = request("textDocument/hover", {"textDocument": {"uri": uris["robot.urdf.xacro"]},

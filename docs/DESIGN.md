@@ -87,6 +87,7 @@ No existing schema covers URDF, ros2_control, gazebo, transmissions and xacro to
 
 - drives completion and hover from its own vocabulary (`src/main/resources/xacro/lemminx/urdf-vocabulary.json`). It covers core URDF, both transmission styles, `<gazebo>` with the common Classic/gz extension tags, and `<ros2_control>` (hardware, plugin, joint, sensor, gpio, command and state interfaces, param). Context-specific entries use `parent/tag` keys (`ros2_control/joint` vs `transmission/joint` vs `joint`);
 - runs URDF semantic checks on expanded output (sidecar) and on plain `.urdf` files (`UrdfChecks`).
+- binds a *permissive* `<robot>` XSD (`robot-permissive.xsd`, accepts anything) to `*.xacro` / `*.urdf` files whose root is `<robot>` through `IExternalGrammarLocationProvider`. This only stops LemMinX from reporting "No grammar constraints (DTD or XML Schema)"; it validates nothing. A user's `xml.fileAssociations` entry still takes precedence.
 
 **Next step for plain `.urdf` validation:** bundle a "URDF+" XSD generated from the same vocabulary, or urdfdom's XSD extended with `ros2_control` (adapted from hcdformat) plus `gazebo@reference` and `anyAttribute`. Bind it via `IExternalGrammarLocationProvider` for `*.urdf` only, never for `*.xacro`.
 

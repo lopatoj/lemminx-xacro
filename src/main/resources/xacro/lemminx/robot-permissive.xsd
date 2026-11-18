@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Permissive grammar bound by lemminx-xacro to *.xacro / *.urdf files whose root is <robot>.
+
+  Its only job is to tell LemMinX that the document *has* a grammar (so it does not report
+  "No grammar constraints"), while validating nothing: xacro allows macro calls and ${...}
+  anywhere, which no XSD can describe. URDF/xacro checking is done by the extension itself.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified">
+  <xs:element name="robot">
+    <xs:annotation>
+      <xs:documentation>Root element of a URDF robot description (checked by lemminx-xacro).</xs:documentation>
+    </xs:annotation>
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:any namespace="##any" processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##any" processContents="skip"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
