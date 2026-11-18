@@ -23,17 +23,17 @@ See [docs/DESIGN.md](docs/DESIGN.md) for how it works, including how xacro's Pyt
 
 ## Build
 
-Requires JDK 17+ (Maven is fetched by `./mvnw`).
+Requires JDK 17+ and Maven 3.8+.
 
 ```bash
-./mvnw package          # target/lemminx-xacro-<v>.jar      (extension only, for vscode-xml)
-./mvnw -Puber package   # target/lemminx-xacro-<v>-uber.jar (LemMinX + extension, standalone server)
+mvn package            # target/lemminx-xacro-<v>.jar      (extension only, for vscode-xml)
+mvn -Puber package     # target/lemminx-xacro-<v>-uber.jar (LemMinX + extension, standalone server)
 ```
 
-Tests: `./mvnw test`. The end-to-end LSP smoke test is `python3 scripts/lsp_smoke.py` (after `-Puber package`). To scan your own workspaces for false positives:
+Tests: `mvn test`. The end-to-end LSP smoke test is `python3 scripts/lsp_smoke.py [--all]` (after `-Puber package`). To scan your own workspaces for false positives:
 
 ```bash
-./mvnw test -Dtest=CorpusTest -Dcorpus=$HOME/ws1,$HOME/ws2
+mvn test -Dtest=CorpusTest -Dcorpus=$HOME/ws1,$HOME/ws2
 ```
 
 ## Editor setup
