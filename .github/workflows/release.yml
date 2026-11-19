@@ -1,0 +1,41 @@
+# On a version tag (e.g. v0.1.0): build, test, and publish a GitHub release with
+#   lemminx-xacro-<version>.jar       thin LemMinX extension jar (downloaded by the Zed extension;
+#                                     usable with vscode-xml's xml.extension.jars)
+#   lemminx-xacro-<version>-uber.jar  LemMinX + extension, a standalone server (Neovim, Helix, ...)
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Set version from tag
+        run: mvn -B -q versions:set -DnewVersion="${GITHUB_REF_NAME#v}" -DgenerateBackupPoms=false
+
+      # Python/xacro tests are skipped automatically when ROS is not installed.
+      - name: Test
+        run: mvn -B test
+
+      - name: Build jars
+        run: mvn -B -Puber package -DskipTests
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            target/lemminx-xacro-*.jar
+          fail_on_unmatched_files: true
+          generate_release_notes: true

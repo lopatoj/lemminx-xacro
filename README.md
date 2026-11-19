@@ -47,6 +47,8 @@ LemMinX's native binary can't load extensions, so Java is required.
 "files.associations": { "*.xacro": "xml", "*.urdf": "xml" }
 ```
 
+**Zed**: `clients/zed` is a Zed extension that adds a Xacro language for `*.xacro` / `*.urdf` and runs the stock LemMinX jar with this extension on its classpath, downloading both automatically. Plain `.xml` files stay with the XML extension. See [clients/zed/README.md](clients/zed/README.md).
+
 **Neovim** (nvim-lspconfig `lemminx`):
 
 ```lua
