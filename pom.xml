@@ -1,10 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8" ?>
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>xacro.lemminx</groupId>
   <artifactId>lemminx-xacro</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
   <name>LemMinX xacro/URDF extension</name>
   <description>Xacro and URDF language support as an extension to the LemMinX XML language server</description>
 
@@ -65,13 +69,13 @@
         <configuration>
           <java>
             <!-- Removes unused imports and orders the rest -->
-            <removeUnusedImports/>
-            <importOrder/>
+            <removeUnusedImports />
+            <importOrder />
             <!-- Applies Google Java Format (or replace with <palantirJavaFormat/> or <eclipse/>) -->
-            <googleJavaFormat/>
+            <googleJavaFormat />
           </java>
           <pom>
-            <sortPom/>
+            <sortPom />
           </pom>
         </configuration>
         <executions>
@@ -114,7 +118,7 @@
                   <createDependencyReducedPom>false</createDependencyReducedPom>
                   <shadedClassifierName>uber</shadedClassifierName>
                   <transformers>
-                    <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                    <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                     <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                       <mainClass>org.eclipse.lemminx.XMLServerLauncher</mainClass>
                     </transformer>
