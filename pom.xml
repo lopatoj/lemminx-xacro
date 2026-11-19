@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>xacro.lemminx</groupId>
@@ -16,14 +14,6 @@
     <lemminx.version>0.31.2</lemminx.version>
     <junit.version>5.11.4</junit.version>
   </properties>
-
-  <repositories>
-    <repository>
-      <id>lemminx-releases</id>
-      <url>https://repo.eclipse.org/content/repositories/lemminx-releases/</url>
-      <snapshots><enabled>false</enabled></snapshots>
-    </repository>
-  </repositories>
 
   <dependencies>
     <!-- Provided by the LemMinX server at runtime (also brings lsp4j and gson). -->
@@ -42,8 +32,24 @@
     </dependency>
   </dependencies>
 
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>lemminx-releases</id>
+      <url>https://repo.eclipse.org/content/repositories/lemminx-releases/</url>
+    </repository>
+  </repositories>
+
   <build>
     <plugins>
+      <!-- Pinned so older Maven installs (whose default compiler plugin ignores maven.compiler.release) still build. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -51,12 +57,46 @@
       </plugin>
       <!-- Fat "uber" LemMinX + extension jar for editors that launch LemMinX themselves (Neovim, Helix, ...).
            Run: mvn -Puber package  →  target/lemminx-xacro-*-uber.jar -->
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <!-- Check Maven Central for the latest release, or use 2.46.1 for Java 11 -->
+        <version>2.46.1</version>
+        <configuration>
+          <java>
+            <!-- Removes unused imports and orders the rest -->
+            <removeUnusedImports/>
+            <importOrder/>
+            <!-- Applies Google Java Format (or replace with <palantirJavaFormat/> or <eclipse/>) -->
+            <googleJavaFormat/>
+          </java>
+          <pom>
+            <sortPom/>
+          </pom>
+        </configuration>
+        <executions>
+          <execution>
+            <!-- Automatically checks formatting during 'mvn verify' or 'mvn test' -->
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
   <profiles>
     <profile>
       <id>uber</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.eclipse.lemminx</groupId>
+          <artifactId>org.eclipse.lemminx</artifactId>
+          <version>${lemminx.version}</version>
+          <scope>compile</scope>
+        </dependency>
+      </dependencies>
       <build>
         <plugins>
           <plugin>
@@ -65,8 +105,10 @@
             <version>3.6.0</version>
             <executions>
               <execution>
+                <goals>
+                  <goal>shade</goal>
+                </goals>
                 <phase>package</phase>
-                <goals><goal>shade</goal></goals>
                 <configuration>
                   <shadedArtifactAttached>true</shadedArtifactAttached>
                   <createDependencyReducedPom>false</createDependencyReducedPom>
@@ -93,14 +135,6 @@
           </plugin>
         </plugins>
       </build>
-      <dependencies>
-        <dependency>
-          <groupId>org.eclipse.lemminx</groupId>
-          <artifactId>org.eclipse.lemminx</artifactId>
-          <version>${lemminx.version}</version>
-          <scope>compile</scope>
-        </dependency>
-      </dependencies>
     </profile>
   </profiles>
 </project>
