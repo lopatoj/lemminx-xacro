@@ -1,7 +1,7 @@
 # On a version tag (e.g. v0.1.0): build, test, and publish a GitHub release with
-#   lemminx-xacro-<version>.jar       thin LemMinX extension jar (downloaded by the Zed extension;
-#                                     usable with vscode-xml's xml.extension.jars)
-#   lemminx-xacro-<version>-uber.jar  LemMinX + extension, a standalone server (Neovim, Helix, ...)
+#   lemminx-xacro-<version>.jar       thin LemMinX extension jar (vscode-xml's xml.extension.jars,
+#                                     or on the classpath of a stock LemMinX jar)
+#   lemminx-xacro-<version>-uber.jar  LemMinX + extension, a standalone server (Zed, Neovim, Helix, ...)
 name: release
 
 on:

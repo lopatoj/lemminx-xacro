@@ -1,8 +1,0 @@
-name = "Xacro"
-grammar = "xml"
-# *.urdf.xacro is covered by "xacro". Plain URDF files are handled too (same server).
-path_suffixes = ["xacro", "urdf"]
-block_comment = ["<!-- ", " -->"]
-brackets = [{ start = "<", end = ">", close = true, newline = true }]
-prettier_parser_name = "xml"
-prettier_plugins = ["@prettier/plugin-xml"]

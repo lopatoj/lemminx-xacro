@@ -47,7 +47,35 @@ LemMinX's native binary can't load extensions, so Java is required.
 "files.associations": { "*.xacro": "xml", "*.urdf": "xml" }
 ```
 
-**Zed**: `clients/zed` is a Zed extension that adds a Xacro language for `*.xacro` / `*.urdf` and runs the stock LemMinX jar with this extension on its classpath, downloading both automatically. Plain `.xml` files stay with the XML extension. See [clients/zed/README.md](clients/zed/README.md).
+**Zed** (with the [XML extension](https://github.com/sweetppro/zed-xml)): the XML extension runs LemMinX's native binary, which can't load extensions, but it honors a launch-command override. Point it at the uber jar and map the robot file types to XML in `settings.json`:
+
+```jsonc
+"file_types": {
+  "XML": ["xacro", "urdf"]
+},
+"lsp": {
+  "lemminx": {
+    "binary": {
+      "path": "java",
+      "arguments": ["-jar", "/path/to/lemminx-xacro-0.1.0-SNAPSHOT-uber.jar"]
+    },
+    // LemMinX reads start-up settings from initializationOptions.settings, later changes from settings
+    "initialization_options": {
+      "settings": { "xml": { "xacro": { "python": { "setupScript": "/opt/ros/jazzy/setup.bash" } } } }
+    },
+    "settings": {
+      "xml": { "xacro": { "python": { "setupScript": "/opt/ros/jazzy/setup.bash" } } }
+    }
+  }
+}
+```
+
+- This replaces the server for *all* XML files. Everything LemMinX does for plain XML still works; it just starts a little slower than the native binary.
+- Zed's `URDF` extension, if installed, claims `*.urdf` with its own server. Uninstall it, or the `file_types` entry is needed to win that file type back.
+- Open a ROS workspace (or a package) as the project: its folder is what `$(find pkg)` resolution scans.
+- After rebuilding the jar, run **editor: restart language server**. Server output is under command palette → *language server logs* → `lemminx`.
+
+Instead of the uber jar you can run the stock [LemMinX uber jar](https://repo.eclipse.org/content/repositories/lemminx-releases/org/eclipse/lemminx/org.eclipse.lemminx/) with the thin extension jar added to its classpath: `"arguments": ["-cp", "/path/to/org.eclipse.lemminx-0.31.2-uber.jar:/path/to/lemminx-xacro-0.1.0-SNAPSHOT.jar", "org.eclipse.lemminx.XMLServerLauncher"]`.
 
 **Neovim** (nvim-lspconfig `lemminx`):
 
